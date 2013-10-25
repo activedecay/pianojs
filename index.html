@@ -1,18 +1,29 @@
+<html>
+<head>
+    <script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="js/piano_data.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/css.css"/>
+</head>
+<div id="console"></div>
+
 <div class="sharps"></div>
 <div class="flats"></div>
 <textarea class="stepIntervals"></textarea>
 <div>
     semitones
-    <input class="steps" maxlength="2" /> 
-    <span class="steps_results"></span>
+    <input class="semitones" maxlength="2" />
+    <span class="semitones_results"></span>
 </div>
-<div id="console"></div>
+<table>
+    <tr><td>flats:</td><td><span class="with_flats"></span></td></tr>
+    <tr><td>sharps:</td><td><span class="with_sharps"></span></td></tr>
+    <tr><td>intervals:</td><td><span class="with_intervals"></span></td></tr>
+</table>
 <div class="keyboard"></div>
 <div>
-    <select class="chords"></select>
-    <table>
-        <tr><td>flats:</td><td><span class="with_flats"></span></td></tr>
-        <tr><td>sharps:</td><td><span class="with_sharps"></span></td></tr>
-        <tr><td>intervals:</td><td><span class="with_intervals"></span></td></tr>
-    </table>
+    <select class="notes" size="12"></select>
+    <select class="chords" size="12"></select>
+    <select class="scales" size="12"></select>
 </div>
+</html>
