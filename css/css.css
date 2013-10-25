@@ -1,0 +1,27 @@
+.steps {
+    width : 15px;
+}
+.key {
+    display: block;
+    width: 18px;
+    height: 100px;
+    outline: 1px solid black;
+    position: absolute;
+}
+.accid {
+    display: block;
+    width: 10px;
+    height: 65px;
+    background: black;
+    position: absolute;
+    z-index: 1;
+}
+.keyboard {
+    position: relative;
+    height: 100px;
+    padding: 10px 0;
+}
+.pressed {
+    background: red;
+    outline: 1px solid black;
+}
