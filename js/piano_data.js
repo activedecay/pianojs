@@ -84,13 +84,15 @@ var complexIntervals =  {
 };
 
 var chordsNiceNames = {
+    "Major" : [0,4,7],
+    "Minor" : [0,3,7],
+    "Diminished" : [0,3,6],
+    "Augmented" : [0,4,8],
     "5" : [0,7],
     "6" : [0,4,7,9],
     "9" : [0,4,7,10,14],
     "11" : [0,4,7,10,14,17],
     "13" : [0,4,7,10,14,21],
-    "Major" : [0,4,7],
-    "Minor" : [0,3,7],
     "Dominant7th" : [0,4,7,10],
     "Major7th" : [0,4,7,11],
     "Minor7th" : [0,3,7,10],

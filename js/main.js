@@ -267,11 +267,13 @@ function updateDiatonic() {
     }
     var diatonicSelect = $('.diatonic');
     diatonicSelect.find('option').remove();
-    for (var q in diatonicQualities) {
-        var quality = diatonicQualities[q];
+    for (var q = 0; q < diatonicQualities.length; q++) {
+        var qNotes = diatonicQualities[q];
         for (var obj in chords) {
-            if ($(quality).not(chords[obj]).length == 0
-                    && $(chords[obj]).not(quality).length == 0) {
+            console.info("quality " + qNotes + " " +
+                "chords obj " + chords[obj])
+            if ($(qNotes).not(chords[obj]).length === 0
+                    && $(chords[obj]).not(qNotes).length === 0) {
                 diatonicSelect.append($('<option>'+obj+'</option>'))
             }
         }
