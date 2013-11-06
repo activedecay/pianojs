@@ -26,6 +26,8 @@ var lastPicked;
 var root = 0;
 var upArrowKey = 38;
 var downArrowKey = 40;
+var minorChordName = "Minor";
+var majorChordName = "Major";
 
 function noteFromInt(i) {
     i += 2; // 0 is C
@@ -56,18 +58,25 @@ function createNotes() {
     }
 }
 
-function stepsKeyupEvent(code) {
-    var semitones = $('.semitones').val();
-    if (code.keyCode === upArrowKey)
-        $('.semitones').val(new Number(semitones) + 1);
-    if (code.keyCode === downArrowKey)
-        $('.semitones').val(new Number(semitones) - 1);
+function semitonesKeyupEvent(event) {
+    var semitonesTxtbox = $('.semitones');
+    var semitones = semitonesTxtbox.val();
+    var number = new Number(semitones);
+    if (isNaN(number)) number = 0;
 
-    semitones = $('.semitones').val();
-    $('.semitones_results').text(
-        semitones && stepIntervals[semitones] ?
-            stepIntervals[semitones].join(" & ") :
-            "");
+    if (event.which === upArrowKey) {
+        number++;
+        var max = stepIntervals.length - 1;
+        number = number > max ? max : number;
+    }
+    if (event.which === downArrowKey) {
+        number--;
+        number = number <= 0 ? 0 : number;
+    }
+
+    semitonesTxtbox.val(number);
+    semitones = semitonesTxtbox.val();
+    $('.semitones_results').text(stepIntervals[semitones].join(" & "));
 }
 
 function createKeyboard() {
@@ -75,7 +84,7 @@ function createKeyboard() {
     var accidLeft = 14;
     var accidCounter = 0;
     var delta = 19;
-    for (var i = 0; i < 36; i++) {
+    for (var i = 0; i < 48; i++) {
         var key = $('<div></div>');
         if ($.inArray(i % 12, wholeIdx) !== -1) {
             $(key).addClass('key');
@@ -114,12 +123,13 @@ function chordsChangeEvent() {
     var space = "";
     var ispace = "";
     for (var i = 0; i < chosen.length; i++) {
-        fout += space + flats[chosen[i] % flats.length];
-        sout += space + sharps[chosen[i] % sharps.length];
-        iout += ispace + stepIntervals[chosen[i]];
+        var idx = chosen[i];
+        fout += space + flats[idx % flats.length];
+        sout += space + sharps[idx % sharps.length];
+        iout += ispace + stepIntervals[idx];
         space = " ";
         ispace = " - ";
-        $(keyboard[chosen[i] + root]).addClass('pressed');
+        $(keyboard[idx + root]).addClass('pressed');
     }
     $('.with_flats').text(fout);
     $('.with_sharps').text(sout);
@@ -128,16 +138,47 @@ function chordsChangeEvent() {
     lastPicked = chordsChangeEvent;
 }
 
+function notesIn(notes, idx, chosen, iterations) {
+    if (iterations === undefined) {
+        iterations = 2;
+    }
+
+    var out = [notes[idx % notes.length]];
+    for (var i = 0; i < chosen.length * iterations; i++) {
+        idx += chosen[i % chosen.length];
+        out.push(notes[idx % notes.length]);
+    }
+    return out;
+}
+
+function pushKeyboardKeys(chosen, iterations, idx) {
+    var iterated = [];
+    for (var i = 0; i < chosen.length * iterations; i++) {
+        idx += chosen[i % chosen.length];
+        $(keyboard[idx]).addClass('pressed');
+        if (iterations > 1
+            && (i % chosen.length) + 1 == chosen.length
+            && iterated[i / chosen.length] === undefined) {
+            idx = (12 * (iterated.length + 1)) + root;
+            iterated.push(true);
+            $(keyboard[idx]).addClass('pressed');
+        }
+    }
+}
+
 function scalesChangeEvent() {
-    var chosen = scales[$('.scales option:checked').val()];
+    var chosen = scales[$('.scales option:checked').text()];
     if (!chosen) return;
     clearKeyboard();
-    var idx = root;
-    $(keyboard[idx]).addClass('pressed');
-    for (var i = 0; i < chosen.length; i++) {
-        idx += chosen[i];
-        $(keyboard[idx]).addClass('pressed');
-    }
+    var iterations = 2;
+    $(keyboard[root]).addClass('pressed');
+    pushKeyboardKeys(chosen, iterations, root);
+    var fout = notesIn(flats, root, chosen, iterations).join(" ");
+    $('.with_flats').text(fout);
+    var sout = notesIn(sharps, root, chosen, iterations).join(" ");
+    $('.with_sharps').text(sout);
+
+    $('.with_intervals').text("");
 
     lastPicked = scalesChangeEvent;
 }
@@ -145,6 +186,10 @@ function scalesChangeEvent() {
 function notesChangeEvent() {
     root = flats.indexOf($('.notes option:checked').val());
     if (lastPicked) lastPicked();
+}
+
+function keyWhichIs(key, e) {
+    return key === String.fromCharCode(e.which);
 }
 
 $(document).ready(
@@ -155,10 +200,9 @@ $(document).ready(
         $('.sharps').text(sharps);
         $('.flats').text(flats);
 
-        $('.semitones').keyup(stepsKeyupEvent);
+        $('.semitones').keyup(semitonesKeyupEvent);
 
-
-        $('.stepIntervals').text(JSON.stringify(stepIntervals, null, ' '));
+        //$('.stepIntervals').text(JSON.stringify(stepIntervals, null, ' '));
 
         $.each(flats, function(item) {
             var note;
@@ -166,20 +210,47 @@ $(document).ready(
                 note = flats[item];
             else
                 note = flats[item] + " " + sharps[item];
-            $('.notes').append($('<option value="' + flats[item] + '">'+ note+'</option>'));
+            $('.notes').append(
+                $('<option value="' + flats[item] + '">'+ note+'</option>'));
         });
+
         $('.notes').change(notesChangeEvent);
 
+        var chordsSelectbox = $('.chords');
         $.each(chords, function(item) {
-            $('.chords').append($('<option>'+item+'</option>'));
+            chordsSelectbox.append($('<option>'+item+'</option>'));
         });
-        $('.chords').change(chordsChangeEvent);
-        $('.chords').focus(chordsChangeEvent);
+        chordsSelectbox.change(chordsChangeEvent);
+        chordsSelectbox.focus(chordsChangeEvent);
 
+        var scalesSelectbox = $('.scales');
         $.each(scales, function(item) {
-            $('.scales').append($('<option>'+item+'</option>'));
+            scalesSelectbox.append($('<option>'+item+'</option>'));
         });
-        $('.scales').change(scalesChangeEvent);
-        $('.scales').focus(scalesChangeEvent);
+        $('.scales option').each(function (e, a) {
+            if (/^Major$/i.test($(a).val())) {
+                $(a).attr('value', majorChordName);
+            }
+            if (/^Natural Minor$/i.test($(a).val())) {
+                $(a).attr('value', minorChordName);
+            }
+        });
+        scalesSelectbox.change(scalesChangeEvent);
+        scalesSelectbox.focus(scalesChangeEvent);
+
+        $('body').on('keydown', function(e) {
+            if (e.altKey) {
+                var theScales = $('.scales');
+                if (keyWhichIs('M', e)) {
+                    theScales.val(majorChordName);
+                    theScales.change();
+                }
+                if (keyWhichIs('N', e)) {
+                    theScales.val(minorChordName);
+                    theScales.change();
+                }
+            }
+        })
+
     }
 );

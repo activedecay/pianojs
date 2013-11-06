@@ -47,7 +47,6 @@ var sortedChordArrays = {
     "7sus2"  :[1,0,1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
 }
 
-
 var simpleIntervals = {
     "1st" : {"perfect": 0},
     "2nd" : {"minor": 1, "major": 2},

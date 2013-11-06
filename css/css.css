@@ -22,6 +22,12 @@
     padding: 10px 0;
 }
 .pressed {
-    background: red;
+    background: #6ebfff;
     outline: 1px solid black;
+}
+.accid.pressed {
+    background: #2D5C97;
+}
+.tableSub {
+    font-size: 9px;
 }
