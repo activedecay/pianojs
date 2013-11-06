@@ -123,13 +123,13 @@ function chordsChangeEvent() {
     var space = "";
     var ispace = "";
     for (var i = 0; i < chosen.length; i++) {
-        var idx = chosen[i];
+        var idx = root + chosen[i];
         fout += space + flats[idx % flats.length];
         sout += space + sharps[idx % sharps.length];
-        iout += ispace + stepIntervals[idx];
+        iout += ispace + stepIntervals[idx - root];
         space = " ";
         ispace = " - ";
-        $(keyboard[idx + root]).addClass('pressed');
+        $(keyboard[idx]).addClass('pressed');
     }
     $('.with_flats').text(fout);
     $('.with_sharps').text(sout);
