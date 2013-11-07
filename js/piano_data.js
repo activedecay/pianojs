@@ -84,7 +84,14 @@ var complexIntervals =  {
 };
 
 var romanAnalysis = {
-
+    "7" : ["maj","min7"],
+    "M7" : ["maj","maj7"],
+    "m7" : ["min","min7"],
+    "\u00f87" : ["dim","min7"],
+    "o7" : ["dim","dim7"],
+    "mM7" : ["min","maj7"],
+    "+M7" : ["aug","maj7"],
+    "+7" : ["aug","min7"]
 }
 
 var chordsNiceNames = {
