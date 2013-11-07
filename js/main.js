@@ -166,6 +166,42 @@ function getNumberFromText(text, event, max, min) {
     return number;
 }
 
+function updateDiatonic() {
+    var scale = scales[$('.scales option:checked').val()];
+    var chord = chords[$('.chords option:checked').val()];
+    if (!scale || !chord) return;
+    var idxs = idxInScale(root, scale, 4);
+    var chordSpan = chord.length * 2;
+    var keyboardIdxs = [];
+    var diatonicQualities = [];
+    for (var roman = 0; roman < 8; roman++) {
+        var triad = [];
+        // find keyboard indexes
+        for (var i = 0; i < chordSpan; i += 2) {
+            triad.push(idxs[roman + i]);
+        }
+        keyboardIdxs.push(triad);
+        // find triad quality
+        var quality = [];
+        var triadRoot = triad[0];
+        for (i = 0; i < triad.length; i++) {
+            quality.push(triad[i] - triadRoot);
+        }
+        diatonicQualities.push(quality);
+    }
+    var diatonicSelect = $('.diatonic');
+    diatonicSelect.find('option').remove();
+    for (var q = 0; q < diatonicQualities.length; q++) {
+        var qNotes = diatonicQualities[q];
+        for (var obj in chords) {
+            if ($(qNotes).not(chords[obj]).length === 0
+                && $(chords[obj]).not(qNotes).length === 0) {
+                diatonicSelect.append($('<option val='+keyboardIdxs[q]+'>'+obj+'</option>'))
+            }
+        }
+    }
+}
+
 // EVENTS
 function semitonesKeyupEvent(event) {
     var semitonesTxtbox = $('.semitones');
@@ -221,6 +257,8 @@ function chordsChangeEvent() {
     $('.with_sharps').text(sout);
     $('.with_intervals').text(iout);
 
+    updateDiatonic();
+
     lastPicked = chordsChangeEvent;
 }
 
@@ -242,47 +280,32 @@ function scalesChangeEvent() {
     lastPicked = scalesChangeEvent;
 }
 
-function updateDiatonic() {
-    var scale = scales[$('.scales option:checked').val()];
-    var chord = chords[$('.chords option:checked').val()];
-    if (!scale || !chord) return;
-    var idxs = idxInScale(root, scale, 4);
-    var chordSpan = chord.length * 2;
-    var keyboardIdxs = [];
-    var diatonicQualities = [];
-    for (var roman = 0; roman < 8; roman++) {
-        var triad = [];
-        // find keyboard indexes
-        for (var i = 0; i < chordSpan; i += 2) {
-            triad.push(idxs[roman + i]);
-        }
-        keyboardIdxs.push(triad);
-        // find triad quality
-        var quality = [];
-        var triadRoot = triad[0];
-        for (i = 0; i < triad.length; i++) {
-            quality.push(triad[i] - triadRoot);
-        }
-        diatonicQualities.push(quality);
-    }
-    var diatonicSelect = $('.diatonic');
-    diatonicSelect.find('option').remove();
-    for (var q = 0; q < diatonicQualities.length; q++) {
-        var qNotes = diatonicQualities[q];
-        for (var obj in chords) {
-            console.info("quality " + qNotes + " " +
-                "chords obj " + chords[obj])
-            if ($(qNotes).not(chords[obj]).length === 0
-                    && $(chords[obj]).not(qNotes).length === 0) {
-                diatonicSelect.append($('<option>'+obj+'</option>'))
-            }
-        }
-    }
-}
-
 function notesChangeEvent() {
     root = flats.indexOf($('.notes option:checked').val());
     if (lastPicked) lastPicked();
+}
+
+function diatonicChangeEvent() {
+    clearKeyboardPressed();
+    var keyboardIdxs = $.parseJSON("[" +
+        $('.diatonic option:checked').attr('val') + "]");
+    for (var i = 0; i < keyboardIdxs.length; i++) {
+        $(keyboard[keyboardIdxs[i]]).addClass('pressed');
+    }
+}
+
+function bodyKeyboardEvent(e) {
+    if (e.altKey) {
+        var theScales = $('.scales');
+        if (keyWhichIs('M', e)) {
+            theScales.val(majorChordName);
+            theScales.change();
+        }
+        if (keyWhichIs('N', e)) {
+            theScales.val(minorChordName);
+            theScales.change();
+        }
+    }
 }
 
 $(document).ready(
@@ -335,19 +358,9 @@ $(document).ready(
         scalesSelectbox.change(scalesChangeEvent);
         scalesSelectbox.focus(scalesChangeEvent);
 
-        $('body').on('keydown', function(e) {
-            if (e.altKey) {
-                var theScales = $('.scales');
-                if (keyWhichIs('M', e)) {
-                    theScales.val(majorChordName);
-                    theScales.change();
-                }
-                if (keyWhichIs('N', e)) {
-                    theScales.val(minorChordName);
-                    theScales.change();
-                }
-            }
-        })
+        $('.diatonic').change(diatonicChangeEvent);
+
+        $('body').on('keydown', bodyKeyboardEvent)
 
     }
 );
