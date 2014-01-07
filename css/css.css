@@ -31,3 +31,13 @@
 .iterations {
     width: 25px;
 }
+.diatonic-labels {
+    display: inline-block;
+    font-size: 10px;
+    vertical-align: top;
+    text-align: right;
+}
+.ctrl-panel {
+    position: relative;
+}
+
